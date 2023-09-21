@@ -4,13 +4,8 @@ document.body.innerHTML = '';
 Utils.ENABLE_TRACE_LOG = 1;
 
 var userContentVal = {
-  'my simple web page': {
-    _rt:'web/page',
-    title: 'hello there'
-  },
-  'readme.txt': {
-    _ct: 'text/plain',
-    _content: 'this resource has editable text content'
+  'db': {
+    _rt:'db',
   }
 };
 
@@ -23,7 +18,7 @@ var systemTemplates = new ObjectResource(window.templates).wrap({
 });
 
 //tempates for our own renderTypes
-var userTemplate = new StoredObjectResource(new RemoteResource(), 'templates.json').wrap({
+var userTemplate = new StoredObjectResource(new RemoteResource(), 'user-templates.json').wrap({
   getType: function() { return 'resource/templates'; }
 });
 
@@ -42,7 +37,7 @@ var defaultTemplates = new ObjectResource({
     'root': {
       'default.func': function (res, writer, context) {
         //default is to take the existing resource path and render it as html
-        context.forwardRequest(context.getCurrentResourcePath() + '@.res-list');
+        context.forwardRequest('/content/db');
       }
     }
   }
@@ -94,5 +89,5 @@ handler.registerFactory('func', new InterFuncRendererFactory()); //internal func
 
 //start by listing content of the root resource
 var path = location.hash.substr(1);
-if (!path) path = '/.@res-list';
+if (!path) path = '/content/db';
 handler.handleRequest(path);
