@@ -194,7 +194,7 @@ $(function () {
     sendWindowMessage({openExternal:unescape(u)});
   });
   
-  $(document).on('click', '.act_nav-item', function(evt) {
+  $(document).on('click', '.act_nav-item', function(evt) { //XXX
     let base_url = $(evt.target).parents('[data-base_url]').data('base_url');
     let item_ref = $(evt.target).data('item_ref');
     let item_query = $(evt.target).data('item_query');
@@ -208,13 +208,12 @@ $(function () {
     if (evt.target.classList.contains('act_exec-code')) return;
     //if (window.getSelection().type == 'Range') return;
 
-    if (document.body.classList.contains('edit') && $item.hasClass('visible')) {
-      if (item_ref) {
-        let u = base_url+'/'+item_ref;
-        $item.addClass('focused');
-        saveViewMode();
-        window.location.assign(u);
-      }
+    if (item_query) {
+      let query_url = $(evt.target).parents('[data-base_query_url]').data('base_query_url');
+      if (!query_url) query_url = window.location.toString().replace(/\?.*$/, '');
+      let u = query_url + '?' + item_query;
+      window.location.assign(u);
+      evt.stopPropagation();
       evt.preventDefault();
       return;
     }
@@ -224,14 +223,24 @@ $(function () {
       evt.preventDefault();
       return;
     }
- 
-    if (item_query) {
-      let u = window.location.toString().replace(/\?.*$/, '') + '?' + item_query;
-      window.location.assign(u);
+
+    if (evt.target.tagName == 'A') {
+      document.getSelection().removeAllRanges();
+      let href = evt.target.getAttribute('href');
+
+      if (href.indexOf('/') == 0) {
+        let u = base_url + href;
+        window.location.assign(u);
+      }
+      else {
+        sendWindowMessage({openExternal:href});
+      }
+
       evt.stopPropagation();
       evt.preventDefault();
       return;
     }
+ 
   });
 
   $(document).on('click', '.CodeMirror-widget a', function(evt) {

@@ -29,7 +29,12 @@ function resizeWindow(width, height) {
 
 function initBaleBaseAppFuncs() {
   window.sendWindowMessage = function(msg) {
-    console.log(msg);
+    if (msg['openExternal']) {
+      window.open(msg['openExternal']);
+    }
+    else {
+      console.log(msg);
+    }
   };
   
   window.localStorage.getItem('_md');
