@@ -297,7 +297,7 @@ function storeDocumentIMG(ctx, src, dest, cb) {
 }
 
 $(function () {
-  window.addEventListener('message', function(evt) { //XXX
+  window.addEventListener('message', function(evt) {
     let path_ref = evt.source.location.toString();
     if (window.popupPathCB && window.popupPathCB[path_ref]) {
       Utils.flushResourceCache();
@@ -363,7 +363,7 @@ $(function () {
     evt.preventDefault();
   });
 
-  $(document).on('click', '.act_popup-item-sel', function(evt) { //XXX
+  $(document).on('click', '.act_popup-item-sel', function(evt) {
     let item_ref = $(evt.target).data('item_ref');
     if (!item_ref) item_ref = $(evt.target).parents('[data-item_ref]').data('item_ref');
     if (!item_ref && evt.target.form) {

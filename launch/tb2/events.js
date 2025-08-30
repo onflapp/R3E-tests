@@ -115,7 +115,7 @@ $(function () {
     if (document.querySelector('#ui_popup')) {
       cancelPopupPath();
     }
-    else { //XXX
+    else {
       var $form = $('#editor');
       var change = 1;
       editor.save();
@@ -160,6 +160,12 @@ $(function () {
     evt.preventDefault();
   });
   
+  $(document).on('click', '.sec_note-editor-textarea', function(evt) {
+    if (evt.target.classList.contains('sec_note-editor-textarea') && !document.body.classList.contains('cm-active')) {
+      editor.focus();
+    }
+  });
+
   $(document).on('click', '.act_exec-code', function(evt) {
     let el = evt.target.querySelector('.sec-code_content');
     if (el) {
@@ -226,10 +232,6 @@ $(function () {
       evt.preventDefault();
       return;
     }
-  });
-
-  $(document).on('click', '.sec_note-preview a', function(evt) {
-    evt.preventDefault();
   });
 
   $(document).on('click', '.CodeMirror-widget a', function(evt) {
