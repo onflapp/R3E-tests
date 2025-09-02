@@ -27,6 +27,29 @@ function resizeWindow(width, height) {
   sendWindowMessage({resizeWindow:{width:width, height:height}});
 }
 
+function initViewModeObserver() {
+  if (typeof window.sendWindowMessage == 'undefined') return;
+  
+  var cb = function(event, observer) {
+    if (document.body.classList.contains('edit')) {
+      window.sendWindowMessage({viewMode:'edit'});
+    }
+    else {
+      window.sendWindowMessage({viewMode:'view'});
+    }
+  };
+  
+  var observer = new MutationObserver(cb);
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class'],
+    childList: false,
+    characterData: false
+  });
+  
+  cb();
+}
+
 function initBaleBaseAppFuncs() {
   window.sendWindowMessage = function(msg) {
     if (msg['openExternal']) {
@@ -143,6 +166,7 @@ var config = {
   'X': '.@',
   'APP_PREFIX':app_path,
   'DOC_PREFIX':doc_path,
+  'DOC_ID':docid,
   'USER_TEMPLATES':'/user-templates'
 };
 
@@ -192,6 +216,7 @@ else if (path.indexOf('/') == -1) path += '/.@res-list';
 handler.addEventListener('loaded', function() {
   if (window.IS_BALEBASEAPP) document.body.classList.add('mode_balebaseapp');
   document.body.classList.add('loaded');
+  initViewModeObserver();
 });
 
 initContent(function () {

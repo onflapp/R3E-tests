@@ -563,13 +563,8 @@ function initEvents() {
             var block = target.parentElement.dataset['block'];
             var name = target.dataset['filename'];
             if (block.length > 0 && name) {
-              var a = block.split(':');
-              if (a && a.length == 4) {
-                var rs = CodeMirror.Pos(Number.parseInt(a[0]), Number.parseInt(a[1]));
-                var re = CodeMirror.Pos(Number.parseInt(a[2]), Number.parseInt(a[3]));
-
-                replaceImgInfo(rs, re, name, info);
-              }
+              var range = editor.findRangeForBlock(target.parentElement);
+              replaceImgInfo(range.anchor, range.head, name, info);
             }
           }
           catch(ex) {
@@ -621,13 +616,8 @@ function startEditor(el) {
   if (!window.CONFIG) window.CONFIG = {};
   window.CONFIG.show_spelling_errors = true;
 
-  if (window.CONFIG.image_prefix_gen) {
-    CONFIG.image_prefix = CONFIG.image_prefix_gen();
-  }
-  else {
-    var pref = el.dataset['image_prefix'];
-    if (pref) CONFIG.image_prefix = pref;
-  }
+  var pref = el.dataset['image_prefix'];
+  if (pref) CONFIG.image_prefix = pref;
 
   initEditor(el);
 

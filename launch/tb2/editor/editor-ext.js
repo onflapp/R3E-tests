@@ -397,6 +397,33 @@ CodeMirror.prototype.findWordAt = function(pos) {
   return range;
 };
 
+CodeMirror.prototype.findTextAt = function(pos, text) {
+  var range = CodeMirror.prototype.old_findWordAt.call(this, pos);
+  var str = null;
+  while(range.anchor.ch > 0) {
+    range.head.ch = range.anchor.ch + text.length;
+    str = this.getRange(range.anchor, range.head);
+    if (str == text) break;
+    range.anchor.ch--;
+  }
+  str = this.getRange(range.anchor, range.head);
+  if (str == text) return range;
+  else return null;
+};
+
+CodeMirror.prototype.findRangeForBlock = function(el) {
+  var block = el.dataset['block'];
+  if (block.length > 0) {
+    var a = block.split(':');
+    if (a && a.length == 4) {
+      var rs = CodeMirror.Pos(Number.parseInt(a[0]), Number.parseInt(a[1]));
+      var re = CodeMirror.Pos(Number.parseInt(a[2]), Number.parseInt(a[3]));
+      return {anchor:rs, head:re};
+    }
+  }
+  return null;
+};
+
 CodeMirror.commands['selectNone'] = function(cm) {
   cm.setCursor(cm.getCursor());
   cm.setExtending(false);

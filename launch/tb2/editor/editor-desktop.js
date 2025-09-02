@@ -63,33 +63,21 @@ function initEditorDesktop() {
 
     if (document.body.classList.contains('dragging')) {
       evt.preventDefault();
-      return false;
-    }
-    else if (target.tagName == 'A') {
-      handleOpenLink(target.href);
-      evt.preventDefault();
-      return false;
-    }
-    else if (target.classList.contains('cm-link') && evt.button == 0) {
-      handleOpenLink(target.innerText);
-      evt.preventDefault();
-      return false;
-    }
-    else if (target.classList.contains('cm-link-wikiname') && evt.button == 0) {
-      handleOpenLink(target.innerText);
-      evt.preventDefault();
+      evt.stopPropagation();
       return false;
     }
     else if (target.classList.contains('cm-task-open')) {
       var l = editor.getLineHandleAtPos(evt.clientX, evt.clientY);
       if (l) editor.replaceLine(l.text.replace('- [ ]', '- [x]'), l.lineNo());
       evt.preventDefault();
+      evt.stopPropagation();
       return false;
     }
     else if (target.classList.contains('cm-task-closed')) {
       var l = editor.getLineHandleAtPos(evt.clientX, evt.clientY);
       if (l) editor.replaceLine(l.text.replace('- [x]', '- [ ]'), l.lineNo());
       evt.preventDefault();
+      evt.stopPropagation();
       return false;
     }
   });
