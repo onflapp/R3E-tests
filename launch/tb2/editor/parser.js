@@ -92,7 +92,28 @@ TextEntities = {
     return rv.join('');
   },
 
-  replaceAll(text) {
+  titleline: function(text) {
+    let a = text.split('\n');
+    let rv = [];
+    let sz = a.length;
+
+    for (let i = 0; i < sz; i++) {
+      let t = a[i].trim();
+      if (t.indexOf(':') == 0) continue;
+      if (t.indexOf('!') == 0) continue;
+      if (t.indexOf('~') == 0) continue;
+
+      if (t.length > 0) {
+        rv.push(t);
+        break;
+      }
+    }
+
+    if (rv.length) return rv.join(' ');
+    else return null;
+  },
+
+  replaceAll: function(text) {
     let t = text;
     t = t.replace(/=>/g, '&rArr;');
     t = t.replace(/->/g, '&rarr;');

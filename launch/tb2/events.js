@@ -119,12 +119,17 @@ function initEditView() {
   var el = document.getElementById('editor_textarea');
   restoreMode('edit');
   startEditor(el);
-  //if (!el.value.trim()) {
-  //  document.body.classList.add('mode_edit');
-  //}
 }
 
 $(function () {
+  $(document).on('click', '#act_edit-note', function(evt) {
+    setTimeout(function() {
+      if (document.body.classList.contains('mode_edit')) {
+        editor.focus();
+      }
+    }, 300);
+  });
+
   $(document).on('click', '#add_link', function(evt) {
     let path = $(evt.target).attr('href');
     if (window.__selected_link) {
@@ -271,6 +276,13 @@ $(function () {
       return;
     }
 
+    if (item_ref) {
+      window.location.assign(item_ref);
+      evt.stopPropagation();
+      evt.preventDefault();
+      return;
+    }
+
     if (evt.target.tagName == 'IMG') {
       document.getSelection().removeAllRanges();
       evt.preventDefault();
@@ -297,7 +309,7 @@ $(function () {
   });
 
   $(document).on('click', '.CodeMirror-code .cm-link', function(evt) {
-    var t = evt.target.innerHTML;
+    var t = evt.target.textContent;
     window.__selected_link = {
       href:t,
       title:t
@@ -310,7 +322,7 @@ $(function () {
   });
 
   $(document).on('click', '.CodeMirror-widget a', function(evt) {
-    var t = evt.target.innerHTML;
+    var t = evt.target.textContent;
     window.__selected_link = {
       href:evt.target.getAttribute('href'),
       title:t
