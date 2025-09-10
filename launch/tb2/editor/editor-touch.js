@@ -20,10 +20,12 @@ function touchDidMove(evt) {
 }
 
 function fixWebViewHeight() {
+  /*
   editor.markSelectionRange(null);
   exec_once('fix_size', 50, function() {
     scrollViewToCursor();
   });
+  */
 }
 
 function showActionMenu(type, text) {
@@ -61,7 +63,7 @@ function initEditorTouch() {
   });
 
   editor.on('blur', function() {
-    //fixWebViewHeight();
+    fixWebViewHeight();
     deactivateEditor();
   });
   
