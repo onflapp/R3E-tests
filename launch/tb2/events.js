@@ -407,10 +407,10 @@ $(function () {
     $('.dropping').removeClass('dropping');
   });
 
-  $(window).on('xpaste', function(evt) {
+  $(window).on('paste', function(evt) {
     //navigator.clipboard.read().then(function(clip) {
-    //debugger;
-    //evt.preventDefault();
+    debugger;
+    evt.preventDefault();
   });
 
   $(document).on('drop', function(evt) {

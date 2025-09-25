@@ -20,12 +20,10 @@ function touchDidMove(evt) {
 }
 
 function fixWebViewHeight() {
-  /*
   editor.markSelectionRange(null);
   exec_once('fix_size', 50, function() {
     scrollViewToCursor();
   });
-  */
 }
 
 function showActionMenu(type, text) {
@@ -58,17 +56,17 @@ function deactivateEditor() {
 
 function initEditorTouch() {
   editor.on('focus', function() {
-    fixWebViewHeight();
+    //fixWebViewHeight();
     activateEditor();
   });
 
   editor.on('blur', function() {
-    fixWebViewHeight();
+    //fixWebViewHeight();
     deactivateEditor();
   });
   
   window.addEventListener('resize', function(evt) {
-    fixWebViewHeight();
+    //fixWebViewHeight();
   });
   
   editor.on('scroll', function() {
