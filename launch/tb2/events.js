@@ -152,6 +152,24 @@ function initEditView() {
 }
 
 $(function () {
+  $(document).on('click', '#show_navigation', function(evt) {
+    clearMode('edit');
+    document.body.classList.remove('mode_edit');
+    document.body.classList.remove('edit');
+
+    if (document.body.classList.contains('navigation')) {
+      document.body.classList.remove('navigation');
+    }
+    else {
+      saveEditorForm(false, function() {
+        document.body.classList.add('navigation');
+      });
+    }
+
+    evt.preventDefault();
+    evt.stopPropagation();
+  });
+
   $(document).on('click', '#act_edit-note', function(evt) {
     setTimeout(function() {
       if (document.body.classList.contains('mode_edit')) {

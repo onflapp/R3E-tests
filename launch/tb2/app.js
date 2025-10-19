@@ -34,6 +34,9 @@ function initViewModeObserver() {
     if (document.body.classList.contains('edit')) {
       window.sendWindowMessage({viewMode:'edit'});
     }
+    else if (document.body.classList.contains('search')) {
+      window.sendWindowMessage({viewMode:'search'});
+    }
     else {
       window.sendWindowMessage({viewMode:'view'});
     }
