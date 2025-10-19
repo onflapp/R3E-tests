@@ -55,6 +55,11 @@ function initBaleBaseAppFuncs() {
     if (msg['openExternal']) {
       window.open(msg['openExternal']);
     }
+    else if (msg['cmd'] && msg.cmd == 'syncClipboard') {
+      navigator.clipboard.readText().then(function(txt) {
+        window.handleWindowMessage({'cmd':'syncClipboardCB', 'text':txt});
+      });
+    }
     else {
       console.log(msg);
     }

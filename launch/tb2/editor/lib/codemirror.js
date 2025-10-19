@@ -8226,6 +8226,13 @@
   }
 
   function handlePaste(e, cm) {
+    window.sendWindowMessage({'cmd':'syncClipboard'});
+    
+    e.preventDefault();
+    return true;
+  }
+
+  function handlePaste_ORIG(e, cm) {
     var pasted = e.clipboardData && e.clipboardData.getData("Text");
     if (pasted) {
       e.preventDefault();

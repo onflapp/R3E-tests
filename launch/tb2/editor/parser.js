@@ -109,7 +109,13 @@ TextEntities = {
       }
     }
 
-    if (rv.length) return rv.join(' ');
+    if (rv.length) {
+      let t = rv.join(' ');
+      t = t.replace(/^\W+\s*/, '');
+      t = t.replace(/#.*$/, '');
+      if (t.length > 32) t = t.substr(0, 32);
+      return t;
+    }
     else return null;
   },
 

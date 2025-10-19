@@ -13,6 +13,19 @@ function makeDateTag(tag) {
   else return null;
 }
 
+function formatDateTag(d) {
+  if (!d) return null;
+
+  let v = Date.parse(d);
+  let x = new Date(v)
+
+  let mon = x.toLocaleDateString('en', {'month':'short'});
+  let day = x.toLocaleDateString("en", {'day':'numeric'});
+  let year = x.toLocaleDateString("en", {'year':'2-digit'});
+
+  return day + mon + year;
+}
+
 function clearImageRenditions(base, $images, cb) {
   var todo = 0;
   var done = function() {
@@ -33,9 +46,17 @@ function clearImageRenditions(base, $images, cb) {
 
 function saveEditorForm(sync, cb) {
   var $form = $('#editor');
-  var change = 1;
-  editor.save();
+  var form = $form.get(0);
+  var change = formChanges(form);
   clearMode('edit');
+
+  if (typeof editor == 'undefined') {
+    console.log('no editor');
+    cb();
+    return;
+  }
+
+  editor.save();
   if (change > 0 || !editor.doc.isClean()) {
     var $images = $('.sec_img-frame.cropped img');
 
@@ -44,28 +65,37 @@ function saveEditorForm(sync, cb) {
       postProcessImages(base, $images, function() {
         if (sync) {
           $form.trigger('submit');
-          cb();
+          cb(true);
+        }
+        else if (form) {
+          submitFormAsync(form, function() {
+            //Utils.flushResourceCache();
+            cb(true);
+          });
         }
         else {
-          submitFormAsync($form.get(0), function() {
-            Utils.flushResourceCache();
-            cb();
-          });
+          cb(true);
         }
       });
     }
     else {
       if (sync) {
         $form.trigger('submit');
-        cb();
+        cb(true);
       }
-      else {
-        submitFormAsync($form.get(0), function() {
-          Utils.flushResourceCache();
-          cb();
+      else if (form) {
+        submitFormAsync(form, function() {
+          //Utils.flushResourceCache();
+          cb(true);
         });
       }
+      else {
+        cb(true);
+      }
     }
+  }
+  else {
+    cb(false);
   }
 }
 
@@ -171,10 +201,23 @@ $(function () {
   });
 
   $(document).on('click', '#act_add-page', function(evt) {
+    saveMode('edit', true);
     if (evt.x == 0 && evt.y == 0) return;
 
     saveEditorForm(false, function() {
-      saveMode('edit', true);
+      evt.target.click();
+    });
+
+    evt.preventDefault();
+    evt.stopPropagation();
+  });
+
+  $(document).on('click', '.act_save-note-end', function(evt) {
+    if (!document.body.classList.contains('edit')) return;
+    if (evt.x == 0 && evt.y == 0) return;
+
+    saveEditorForm(false, function() {
+      clearMode('edit');
       evt.target.click();
     });
 
@@ -188,7 +231,8 @@ $(function () {
       cancelPopupPath();
     }
     else {
-      saveEditorForm(true, function() {
+      saveEditorForm(true, function(changes) {
+        if (!changes) window.location.reload();
       });
     }
 
@@ -245,7 +289,7 @@ $(function () {
     let u = evt.target.src;
     let i = u.lastIndexOf('_r/');
     if (i > 0) u = u.substr(0, i);
-
+    
     evt.stopPropagation();
     evt.preventDefault();
 
@@ -257,7 +301,8 @@ $(function () {
     let item_ref = $(evt.target).data('item_ref');
     let item_query = $(evt.target).data('item_query');
     let $item = $(evt.target);
-    
+    let selected = !(window.getSelection().isCollapsed);
+
     if (!item_ref) {
       $item = $(evt.target).parents('[data-item_ref]');
       item_ref = $item.data('item_ref');
@@ -271,13 +316,6 @@ $(function () {
       if (!query_url) query_url = window.location.toString().replace(/\?.*$/, '');
       let u = query_url + '?' + item_query;
       window.location.assign(u);
-      evt.stopPropagation();
-      evt.preventDefault();
-      return;
-    }
-
-    if (item_ref) {
-      window.location.assign(item_ref);
       evt.stopPropagation();
       evt.preventDefault();
       return;
@@ -305,7 +343,14 @@ $(function () {
       evt.preventDefault();
       return;
     }
- 
+
+    if (item_ref && !selected) {
+      window.location.assign(item_ref);
+      evt.stopPropagation();
+      evt.preventDefault();
+      return;
+    }
+
   });
 
   $(document).on('click', '.CodeMirror-code .cm-link', function(evt) {
@@ -354,7 +399,13 @@ $(function () {
     let pref = $(evt.target).data('pref');
     popupPath(0, path, function(item) {
       if (item) {
-        editor.insert(`${pref}${item}`);
+        if (typeof item['date'] != 'undefined') {
+          let d = formatDateTag(item['date']);
+          if (d) editor.insert('#'+d);
+        }
+        else {
+          editor.insert(`${pref}${item}`);
+        }
         refreshContent();
         editor.focus();
       }
@@ -405,12 +456,6 @@ $(function () {
     }
 
     $('.dropping').removeClass('dropping');
-  });
-
-  $(window).on('paste', function(evt) {
-    //navigator.clipboard.read().then(function(clip) {
-    debugger;
-    evt.preventDefault();
   });
 
   $(document).on('drop', function(evt) {

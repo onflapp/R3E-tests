@@ -96,6 +96,19 @@ function handleWindowMessage(msg) {
       editor.replaceSelection(msg.text);
     }
   }
+  else if (msg.cmd == 'syncClipboardCB') {
+    var text = msg['text'];
+
+    if (msg['linkName']) {
+      var name = msg['linkName'].replace(/[\(\)\[\]]/g, '_');
+      text = '['+msg['linkName']+']('+msg['linkURL']+')';
+    }
+    
+    if (text) {
+      editor.replaceSelection(text);
+      refreshContent();
+    }
+  }
   else {
     console.log(msg);
   }
@@ -106,20 +119,20 @@ function ACTION_apply_style(cmd) {
   var cur = editor.getCursor();
   var line = editor.getLine(cur.line);
 
-  if (cmd.style == 'H1') {
+  if (cmd.value == 'H1') {
     head = "# ";
   }
-  else if (cmd.style == 'H2') {
+  else if (cmd.value == 'H2') {
     head = "## ";
   }
-  else if (cmd.style == 'H3') {
+  else if (cmd.value == 'H3') {
     head = "### ";
   }
-  else if (cmd.style == 'H4') {
+  else if (cmd.value == 'H4') {
     head = "#### ";
   }
 
-  if (cmd.style == 'MONO') {
+  if (cmd.value == 'MONO') {
     if (!editor.somethingSelected() && line.length == 0) {
       editor.insert("```\n");
     }
@@ -135,7 +148,7 @@ function ACTION_apply_style(cmd) {
       });
     }
   }
-  else if (cmd.style == 'CONTAINER') {
+  else if (cmd.value == 'CONTAINER') {
     if (!editor.somethingSelected() && line.length == 0) {
       editor.insert(":::\n");
     }
@@ -151,7 +164,7 @@ function ACTION_apply_style(cmd) {
       });
     }
   }
-  else if (cmd.style == 'QUOTE') {
+  else if (cmd.value == 'QUOTE') {
     if (!editor.somethingSelected() && line.length == 0) {
       editor.insert("> ");
     }
@@ -164,7 +177,7 @@ function ACTION_apply_style(cmd) {
       });
     }
   }
-  else if (cmd.style == 'TASK') {
+  else if (cmd.value == 'TASK') {
     if (!editor.somethingSelected() && line.length == 0) {
       editor.insert("- [ ] ");
     }
@@ -182,7 +195,7 @@ function ACTION_apply_style(cmd) {
       });
     }
   }
-  else if (cmd.style == 'LIST') {
+  else if (cmd.value == 'LIST') {
     if (!editor.somethingSelected() && line.length == 0) {
       editor.insert("- ");
     }
@@ -194,7 +207,7 @@ function ACTION_apply_style(cmd) {
       });
     }
   }
-  else if (cmd.style == 'NORMAL') {
+  else if (cmd.value == 'NORMAL') {
     editor.eachSelectedLine(function (text, from, to) {
       text = text.replace(/^#+ /, '');
       text = text.replace(/^```$/, '');
@@ -233,10 +246,10 @@ function ACTION_apply_layout(cmd) {
       }
     });
 
-    if (cmd.style == 'CENTER') {
+    if (cmd.value == 'CENTER') {
       return '%%%align-center';
     }
-    else if (cmd.style == 'RIGHT') {
+    else if (cmd.value == 'RIGHT') {
       return '%%%align-right';
     }
     else if (haspar) {
@@ -288,19 +301,19 @@ function ACTION_apply_font(cmd) {
   var doc = editor.getDoc();
   var range = editor.listSelections()[0];
 
-  if (cmd.style == 'BOLD') {
+  if (cmd.value == 'BOLD') {
     code = "**";
   }
-  else if (cmd.style == 'ITALIC') {
+  else if (cmd.value == 'ITALIC') {
     code = "*";
   }
-  else if (cmd.style == 'UNDERLINE') {
+  else if (cmd.value == 'UNDERLINE') {
     code = "__";
   }
-  else if (cmd.style == 'STRIKE') {
+  else if (cmd.value == 'STRIKE') {
     code = "~~";
   }
-  else if (cmd.style == 'MONOSPACE') {
+  else if (cmd.value == 'MONOSPACE') {
     code = "`";
   }
 
@@ -555,6 +568,7 @@ function initEvents() {
   editor.on('dblclick', function(cm, evt) {
     var target = evt.target;
     if (target.tagName == 'IMG' && $('ui_cropframe').length == 0) {
+      editor.execCommand('selectNone')      
       $(target).crop({
         frame:'sec_img-frame',
         callback:function() {
@@ -565,6 +579,7 @@ function initEvents() {
             if (block.length > 0 && name) {
               var range = editor.findRangeForBlock(target.parentElement);
               replaceImgInfo(range.anchor, range.head, name, info);
+              editor.execCommand('selectNone')      
             }
           }
           catch(ex) {

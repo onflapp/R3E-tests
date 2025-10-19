@@ -518,6 +518,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function inlineNormal(stream, state) {
     if (stream.match(/^(https?|ftps?):\/\/[^\s]+/, true)) {
+      state.linkText = false; 
+      state.linkTitle = false; 
+      state.linkWikiName = false; 
       return tokenTypes.linkInline;
     }
 

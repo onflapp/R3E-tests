@@ -1,3 +1,12 @@
+.cm-searching {
+  background-color: #ffa;
+  background-color: rgba(255, 255, 0, .4);
+}
+
+.CodeMirror .CodeMirror-widget a {
+  text-wrap: nowrap;
+}
+
 /* BASICS */
 
 .CodeMirror {
@@ -13,6 +22,7 @@
 .CodeMirror-lines {
   padding: 4px 0; /* Vertical padding around content */
 }
+
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
   padding: 0 4px; /* Horizontal padding of content */
@@ -327,11 +337,6 @@ div.CodeMirror-dragcursors {
 .CodeMirror-crosshair { cursor: crosshair; }
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: Highlight; }
 .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: Highlight; }
-
-.cm-searching {
-  background-color: #ffa;
-  background-color: rgba(255, 255, 0, .4);
-}
 
 /* Used to force a border model for a node */
 .cm-force-border { padding-right: .1px; }
