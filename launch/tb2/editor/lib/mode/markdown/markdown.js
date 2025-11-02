@@ -68,6 +68,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     list3: "3",
     hr: "line-cm-hr",
     image: "image",
+    imageSrc: "image-src",
     imageAltText: "image-alt-text",
     imageMarker: "image-marker",
     formatting: "formatting",
@@ -450,7 +451,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return styles.length ? styles.join(' ') : null;
     }
 
-    if (state.linkHref) {
+    if (state.linkHref && state.image) {
+      styles.push(tokenTypes.image);
+      styles.push(tokenTypes.imageSrc);
+    }
+    else if (state.linkHref) {
       styles.push(tokenTypes.linkHref);
     }
     else { // Only apply inline styles to non-url text
@@ -462,7 +467,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (state.linkWikiName) { styles.push(tokenTypes.linkWikiName); }
       if (state.code) { styles.push(tokenTypes.code); }
       if (state.image) { styles.push(tokenTypes.image); }
-      if (state.imageAltText) { styles.push(tokenTypes.imageAltText, "link"); }
+      if (state.imageAltText) { styles.push(tokenTypes.imageAltText); }
       if (state.imageMarker) { styles.push(tokenTypes.imageMarker); }
       if (state.strong == '_') { styles.push('underlined') };
       if (state.em == '_') { styles.push('underlined') };
@@ -646,7 +651,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "image";
       var type = getType(state);
       state.imageAltText = false;
-      state.image = false;
       state.inline = state.f = linkHref;
       return type;
     }
@@ -857,6 +861,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         if (modeCfg.highlightFormatting) state.formatting = "link-string";
         var returnState = getType(state);
         state.linkHref = false;
+        state.image = false;
         return returnState;
       }
 

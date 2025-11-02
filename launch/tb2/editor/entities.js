@@ -102,7 +102,7 @@ function refreshSearchFilter() {
   
   var qs = [];
   
-  if (editor.state['search'] && window.CONFIG.search_filter) {
+  if (editor.state['search'] && window.config.search_filter) {
     if (editor.state.search.queryPrefix) qs = qs.concat(editor.state.search.queryPrefix);
     if (editor.state.search.query) qs.push(editor.state.search.query);
   }
@@ -221,7 +221,7 @@ function makeEntities(doc, from, to) {
   var count = 0;
   count += clearEntities(doc, from, to, 3);
 
-  if (window.CONFIG.show_source) return count;
+  if (window.config.show_source) return count;
 
   for (var i = 0; i < ENTITIES.length; i++) {
     var entity = ENTITIES[i];
@@ -288,7 +288,7 @@ ENTITIES = [
         markClean();
       };
 
-      img.src = window.CONFIG.image_prefix + src;
+      img.src = window.config.image_prefix + src;
 
       var node = document.createElement("a");
       node.href = href;
@@ -331,7 +331,7 @@ ENTITIES = [
 
       var node = document.createElement("img");
       var frame = document.createElement("div");
-      var url = window.CONFIG.image_prefix + href;
+      var url = window.config.image_prefix + href;
       
       markDirty();
 

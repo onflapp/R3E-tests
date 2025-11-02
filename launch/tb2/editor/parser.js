@@ -100,8 +100,8 @@ TextEntities = {
     for (let i = 0; i < sz; i++) {
       let t = a[i].trim();
       if (t.indexOf(':') == 0) continue;
-      if (t.indexOf('!') == 0) continue;
       if (t.indexOf('~') == 0) continue;
+      if (t.indexOf('!') == 0) continue;
 
       if (t.length > 0) {
         rv.push(t);
@@ -111,19 +111,86 @@ TextEntities = {
 
     if (rv.length) {
       let t = rv.join(' ');
+      t = t.replace(/!\[.*?\)/g, '');
+      t = t.replace(/\[.*?\)/g, '');
       t = t.replace(/^\W+\s*/, '');
       t = t.replace(/#.*$/, '');
       if (t.length > 32) t = t.substr(0, 32);
-      return t;
+      
+      if (t.length > 0) return t;
+      else return null;
     }
     else return null;
   },
 
   replaceAll: function(text) {
-    let t = text;
-    t = t.replace(/=>/g, '&rArr;');
-    t = t.replace(/->/g, '&rarr;');
-    return t;
+    let a = text.split('\n');
+    let rv = [];
+    let sz = a.length;
+    let in_block = false;
+    let in_code = false;
+    let in_layout = false;
+
+    for (let i = 0; i < sz; i++) {
+      let t = a[i].trim();
+
+      if (t.match('^:::') && !in_code) {
+        if (in_block) {
+          rv.push('</section>');
+          in_block = false;
+        }
+        else {
+          let name = t.substr(3);
+          rv.push('<section class="cm-container-block cm-'+n+'">');
+          
+          in_block = true;
+        }
+      }
+      else if (t.match('^```')) {
+        if (!in_code) in_code = true;
+        else in_code = false;
+        rv.push(t);
+      }
+      else if (t.match('^%%%\\s*align-center$') && !in_code && !in_block) {
+        rv.push('\n<div class=\"text-align-center\">\n');
+        in_layout = true;
+      }
+      else if (t.match('^%%%\\s*align-right$') && !in_code && !in_block) {
+        rv.push('\n<div class=\"text-align-right\">\n');
+        in_layout = true;
+      }
+      else if (t == '%%%' && !in_code && !in_block) {
+        rv.push('\n</div>\n');
+        in_layout = false;
+      }
+      else if (!in_code && !in_block) {
+        if (t.match('^\\-\\-+\\s*\\w.*$')) {
+          in_layout = false;
+          //NSString* cname = [nl matchFirst:@"^\\-\\-+\\s*(\\w.*)$"];
+          //[nbody appendFormat:@"<div class=\"cm-section-separator\">%@</div>", cname];
+        }
+        else if (t.match('^\\*\\*+$')) {
+          rv.push('<hr class=\"cm-hr cm-star\"/>');
+        }
+        else if (t.match('^\\-\\-+$')) {
+          rv.push('<hr class=\"cm-hr cm-dash\"/>');
+        }
+        else if (t.match('^__+$')) {
+          rv.push('<hr class=\"cm-hr cm-line\"/>');
+        }
+        else {
+          t = t.replace(/=>/g, '&rArr;');
+          t = t.replace(/->/g, '&rarr;');
+          t = t.replace(/¬/g, '<br>');
+          rv.push(t);
+        }
+      }
+    }
+
+    if (in_block) rv.push('</section>');
+    if (in_layout) rv.push('</div>');
+
+    return rv.join('\n');
   }
 };
 /*

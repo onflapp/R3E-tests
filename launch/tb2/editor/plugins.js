@@ -189,7 +189,7 @@ function execPlugins(doc, from, to) {
     }
     else if (phead) {
       var pname = phead.replace(/^[\`~]*\s*/, '');
-      if (pname.length > 0 && !window.CONFIG.show_source) {
+      if (pname.length > 0 && !window.config.show_source) {
         var args = pname.split(' ');
         pname = args.shift();
         plines.pop();

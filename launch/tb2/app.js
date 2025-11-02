@@ -1,6 +1,7 @@
 var docid = '';
 var documentContent = null;
 var documentConfig = null;
+var userSettings = null;
 var bundleData = null;
 var sharedData = null;
 var documentData = null;
@@ -58,6 +59,12 @@ function initBaleBaseAppFuncs() {
     if (msg['openExternal']) {
       window.open(msg['openExternal']);
     }
+    else if (msg['openWindow']) {
+      var u = msg['openWindow'];
+      var t = msg['type'];
+      var link = window.config.APP_PREFIX+u+'.@'+t; 
+      window.open(link);
+    }
     else if (msg['cmd'] && msg.cmd == 'syncClipboard') {
       navigator.clipboard.readText().then(function(txt) {
         window.handleWindowMessage({'cmd':'syncClipboardCB', 'text':txt});
@@ -77,9 +84,9 @@ function initBaleBaseAppFuncs() {
 }
 
 //user content
+var hc = Utils.makeHash(window.location.pathname);
 if (!docid) {
   console.log('no docid found, using local storage!');
-  var hc = Utils.makeHash(window.location.pathname);
 
   documentContent = new LocalStorageResource({}, 'documentContent'+hc);
 
@@ -106,6 +113,11 @@ else {
 
 //user session
 var userSession = new SessionStorageResource({}, 'usersession');
+
+//user settings
+var userSettings = new LocalStorageResource({}, 'userSettings'+hc).wrap({
+  getType: function() { return 'resource/settings'; }
+});
 
 //system templates loaded by <script> and exposed as window.templates
 var systemTemplates = new ObjectResource(window.templates).wrap({
@@ -154,6 +166,7 @@ var root = new RootResource({
   'system-templates': systemTemplates,
   'user-templates': userTemplates,
   'config': documentConfig,
+  'settings':userSettings,
   'content': documentContent,
   'temp': tempContent,
   'session': userSession,

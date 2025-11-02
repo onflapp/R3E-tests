@@ -149,6 +149,45 @@ function initEditView() {
   var el = document.getElementById('editor_textarea');
   restoreMode('edit');
   startEditor(el);
+
+  $('.ui_draggable-list').dragger({
+    ondropped:function(from, loc, to) {
+      var f = from.dataset['item_ref'];
+      var t = to.dataset['item_ref'];
+      var n = Utils.filename(f);
+      var data = {};
+
+      if (loc == 'after') {
+        var a = Utils.filename(t);
+        t = Utils.filename_dir(t);
+        t = Utils.filename_path_append(t, n);
+        data = {
+          '_rt':'notes/item',
+          ':moveto':t,
+          ':moveafter':a,
+          ':transform':'reorder'
+        };
+      }
+      else {
+        t = Utils.filename_path_append(t, n);
+        data = {
+          '_rt':'notes/item',
+          ':moveto':t,
+          ':transform':'reorder'
+        };
+      }
+
+      submitDataAsync(data, '#'+f, function() {
+        var u = window.location.toString();
+        u = u.substr(0, u.indexOf('#'));
+
+        u += '#'+t;
+        window.location.assign(u);
+      });
+
+      return true;
+    }
+  });
 }
 
 $(function () {
@@ -320,6 +359,7 @@ $(function () {
     let item_query = $(evt.target).data('item_query');
     let $item = $(evt.target);
     let selected = !(window.getSelection().isCollapsed);
+    let stickie = document.body.classList.contains('page_note-stickie');
 
     if (!item_ref) {
       $item = $(evt.target).parents('[data-item_ref]');
@@ -397,6 +437,19 @@ $(function () {
     evt.preventDefault();
   });
 
+  $(document).on('click', '#act_popup-info-show', function(evt) {
+    evt.preventDefault();
+
+    let path = $(evt.target).attr('href');
+    saveEditorForm(false, function(changes) {
+      popupPath(0, path, function(item) {
+        if (item) {
+          window.location.reload();
+        }
+      });
+    });
+  });
+  
   $(document).on('click', '.act_popup-image-show', function(evt) {
     evt.preventDefault();
 
@@ -428,6 +481,17 @@ $(function () {
         editor.focus();
       }
     });
+  });
+
+  $(document).on('dblclick', '.sec_note-list .sec_item.selected', function(evt) {
+    let $item = $(evt.target);
+    if (!$item.data('item_ref')) $item = $(evt.target).parents('[data-item_ref]');
+    let item_ref = $item.data('item_ref');
+
+    sendWindowMessage({openWindow:unescape(item_ref),type:'stickie'});
+
+    evt.preventDefault();
+    evt.stopPropagation();
   });
 
   $(document).on('dragstart', function(evt) {

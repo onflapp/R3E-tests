@@ -1,4 +1,8 @@
 function initContent(cb) {
+  userSettings.values = {
+    show_source: false
+  };
+  
   documentContent.values = {
     redirect:'/content/notes/main',
     _rt:'resource/redirect',

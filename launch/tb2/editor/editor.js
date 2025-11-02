@@ -615,7 +615,7 @@ function initEvents() {
       clearPluginOutput(cm.getDoc(), change.from.line, change.to.line);
     }
 
-    if (window.CONFIG.show_spelling_errors) {
+    if (window.config.show_spelling_errors) {
       exec_once('cm_update_spelling', 1000, function() {
         window.sendWindowMessage({cmd:'spellcheck', value:cm.getValue()});
       });
@@ -628,11 +628,11 @@ function initEvents() {
 }
 
 function startEditor(el) {
-  if (!window.CONFIG) window.CONFIG = {};
-  window.CONFIG.show_spelling_errors = true;
+  if (!window.config) window.config = {};
+  window.config.show_spelling_errors = true;
 
   var pref = el.dataset['image_prefix'];
-  if (pref) CONFIG.image_prefix = pref;
+  if (pref) config.image_prefix = pref;
 
   initEditor(el);
 
