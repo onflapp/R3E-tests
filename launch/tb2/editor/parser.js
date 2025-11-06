@@ -185,6 +185,9 @@ TextEntities = {
           rv.push(t);
         }
       }
+      else {
+        rv.push(t);
+      }
     }
 
     if (in_block) rv.push('</section>');

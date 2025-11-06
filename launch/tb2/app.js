@@ -78,7 +78,9 @@ function initBaleBaseAppFuncs() {
   window.localStorage.getItem('_md');
   window.addEventListener('storage', function(evt) {
     if (evt.key == '_md' && frames.length == 0 && !document.body.classList.contains('mode_popup-visible')) {
-      window.location.reload();
+      exec_once('reload', 0.1, function() {
+        window.location.reload();
+      });
     }
   });
 }
@@ -112,7 +114,8 @@ else {
 }
 
 //user session
-var userSession = new SessionStorageResource({}, 'usersession');
+var userSession = new ObjectResource({});
+if (localStorage) userSession = new SessionStorageResource({}, 'usersession');
 
 //user settings
 var userSettings = new LocalStorageResource({}, 'userSettings'+hc).wrap({
@@ -243,6 +246,9 @@ handler.addEventListener('loaded', function() {
 initContent(function () {
   if (document.cookie && document.cookie.indexOf('BaleBaseApp=1') != -1) {
     window.IS_BALEBASEAPP = true;
+    handler.addEventListener('stored', function(evt, path) {
+      sendWindowMessage({storedPath:path});
+    });
   }
   else {
     window.IS_BALEBASEAPP = false;

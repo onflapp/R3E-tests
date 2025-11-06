@@ -574,7 +574,7 @@ $(function () {
         }
         else {
           submitFormAsync($form.get(0), function(data) {
-            let item = data[':image'] + '/' + escape(data['image_name']);
+            let item = data[':image']; //+ '/' + escape(data['image_name']);
             Utils.flushResourceCache();
             editor.insert('\n![image]('+item+')\n');
             refreshContent();
