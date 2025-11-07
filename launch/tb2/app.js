@@ -5,6 +5,7 @@ var userSettings = null;
 var bundleData = null;
 var sharedData = null;
 var documentData = null;
+var documentTemp = null;
 
 try {
   docid = window.location.hash.match(/^#(\d+)/)[1];
@@ -38,6 +39,9 @@ function initViewModeObserver() {
     else if (document.body.classList.contains('search')) {
       window.sendWindowMessage({viewMode:'search'});
     }
+    else if (document.body.classList.contains('preview')) {
+      window.sendWindowMessage({viewMode:'preview'});
+    }
     else {
       window.sendWindowMessage({viewMode:'view'});
     }
@@ -54,6 +58,30 @@ function initViewModeObserver() {
   cb();
 }
 
+window.newUUID = function(data, key) {
+  var lastid = Tools.makeID(documentContent, 'LAST_ITEM_ID');
+  var n = 'item';
+
+  if (data && data['_rt'] && data['_rt'].length) {
+    n = data['_rt'];
+    n = Utils.expandValue(n, data);
+    n = n.replaceAll('/', '_');
+  }
+  else if (data) {
+    var z = '{'+key+'}/_rt';
+    for (var k in data) {
+      if (k.endsWith(z)) {
+        n = data[k];
+        n = Utils.expandValue(n, data);
+        n = n.replaceAll('/', '_');
+        break;
+      }
+    }
+  }
+
+  return n+'_'+lastid;
+};
+
 function initBaleBaseAppFuncs() {
   window.sendWindowMessage = function(msg) {
     if (msg['openExternal']) {
@@ -66,9 +94,12 @@ function initBaleBaseAppFuncs() {
       window.open(link);
     }
     else if (msg['cmd'] && msg.cmd == 'syncClipboard') {
-      navigator.clipboard.readText().then(function(txt) {
-        window.handleWindowMessage({'cmd':'syncClipboardCB', 'text':txt});
-      });
+      try {
+        navigator.clipboard.readText().then(function(txt) {
+          window.handleWindowMessage({'cmd':'syncClipboardCB', 'text':txt});
+        });
+      }
+      catch(ex) {}
     }
     else {
       console.log(msg);
@@ -95,6 +126,7 @@ if (!docid) {
   bundleData = new ObjectResource({});
   sharedData = new ObjectResource({});
   documentData = new ObjectResource({});
+  documentTemp = new ObjectResource({});
 
   documentConfig = new LocalStorageResource({}, 'documentConfig'+hc).wrap({
     getType: function() { return 'resource/config'; }
@@ -107,6 +139,7 @@ else {
   bundleData = new RemoteResource('/BUNDLE/');
   sharedData = new RemoteResource('/SHARED/'); //home library - used to override
   documentData = new RemoteResource(`/${docid}/`);
+  documentTemp = new RemoteResource(`/${docid}-TEMP/`);
 
   documentConfig = new RemoteResource(`/${docid}-CONTENT/`).wrap({
     getType: function() { return 'resource/config'; }
@@ -175,6 +208,7 @@ var root = new RootResource({
   'session': userSession,
   'index': searchIndex,
   '_document': documentData,
+  '_temp': documentTemp,
   '_bundle': bundleData,
   '_shared': sharedData
 });
@@ -201,29 +235,7 @@ var handler = new SPARequestHandler(rres, rtmp);
 handler.setPathParserPattern('^\\d*(?<path>\\/.*?)(\\.@(?<selector>[a-z\\-_]+)(?<dataPath>\\/.*?)?)?$');
 handler.setConfigProperties(config);
 
-handler.registerValueTranformer('newUUID', function(data, key) {
-  var lastid = Tools.makeID(documentContent, 'LAST_ITEM_ID');
-  var n = 'item';
-
-  if (data && data['_rt'] && data['_rt'].length) {
-    n = data['_rt'];
-    n = Utils.expandValue(n, data);
-    n = n.replaceAll('/', '_');
-  }
-  else if (data) {
-    var z = '{'+key+'}/_rt';
-    for (var k in data) {
-      if (k.endsWith(z)) {
-        n = data[k];
-        n = Utils.expandValue(n, data);
-        n = n.replaceAll('/', '_');
-        break;
-      }
-    }
-  }
-
-  return n+'_'+lastid;
-});
+handler.registerValueTranformer('newUUID', window.newUUID);
 
 //register renderers
 var hbs = new HBSRendererFactory();

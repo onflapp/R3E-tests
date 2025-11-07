@@ -44,6 +44,25 @@ function clearImageRenditions(base, $images, cb) {
   });
 }
 
+function importTempImage(name) {
+  var $form = $('#editor');
+  var path = $form.attr('action');
+  var nid = window.newUUID({'_rt':'notes/image'}, 'xxx');
+  var img = path+'/'+nid;
+  var data = {
+    ':copyfrom':'/_temp/'+name,
+    ':copyto':img+'/',
+    '_rt':'notes/image',
+    'image_name':name
+  };
+
+  submitDataAsync(data, '#'+img, function() {
+    editor.insert('\n![image]('+nid+'/'+escape(name)+')\n');
+    refreshContent();
+    editor.focus();
+  });
+}
+
 function saveEditorForm(sync, cb) {
   var $form = $('#editor');
   var form = $form.get(0);
@@ -142,6 +161,18 @@ function execPlugin(text, config, cb) {
 
   R3E.context.renderResource(`/temp/${path}`).then(function(rv) {
     cb(rv);
+  });
+}
+
+function initPreviewView() {
+  $('body.preview .markdown a').on('click', function(evt) {
+    let u = evt.target.getAttribute('href');
+    let b = window.location.toString().replace(/\.@.*?$/, '');
+    window.location.assign(b+u+'.@preview');
+    
+    evt.stopPropagation();
+    evt.preventDefault();
+    return false;
   });
 }
 
@@ -244,7 +275,7 @@ $(function () {
     evt.preventDefault();
     evt.stopPropagation();
   });
-
+  
   $(document).on('click', '#act_append-page', function(evt) {
     if (evt.x == 0 && evt.y == 0) return;
 

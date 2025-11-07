@@ -103,6 +103,11 @@ function handleWindowMessage(msg) {
       var name = msg['linkName'].replace(/[\(\)\[\]]/g, '_');
       text = '['+msg['linkName']+']('+msg['linkURL']+')';
     }
+    else if (msg['image']) {
+      var name = msg['image'];
+      importTempImage(name);
+      return;
+    }
     
     if (text) {
       editor.replaceSelection(text);
